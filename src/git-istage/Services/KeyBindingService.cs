@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using GitIStage.Commands;
 
@@ -50,8 +51,8 @@ internal sealed class KeyBindingService
 
     public string GetUserKeyBindingsPath()
     {
-        var homeDirectory = _userEnvironment.UserHomeDirectory;
-        return Path.Join(homeDirectory, ".git-istage", "key-bindings.json");
+        var homeDirectory = _userEnvironment.SettingsDirectory;
+        return Path.Join(homeDirectory, "key-bindings.json");
     }
 
     private IDictionary<string, CustomKeyBinding?>? LoadUserKeyBindings()
@@ -66,9 +67,19 @@ internal sealed class KeyBindingService
             AllowTrailingCommas = true,
             ReadCommentHandling = JsonCommentHandling.Skip
         };
-
+        
         try
         {
+            // The built-in dictionary deserialization doesn't like it when it finds a $schema key.
+            // Since the schema is only useful for editors, we just remove it before attempting to
+            // deserialize.
+
+            if (JsonNode.Parse(content) is JsonObject jsonObject)
+            {
+                if (jsonObject.Remove("$schema"))
+                    content = jsonObject.ToJsonString();
+            }
+
             return JsonSerializer.Deserialize<Dictionary<string, CustomKeyBinding?>>(content, options);
         }
         catch (JsonException ex)
