@@ -8,12 +8,12 @@ internal class ViewLineRenderer
     {
         var line = view.Document.GetLine(lineIndex);
         var isSelected = view.SelectedLine == lineIndex;
-        var foregroundColor = ConsoleColor.Gray;
-        var backgroundColor = isSelected ? ConsoleColor.DarkGray : ConsoleColor.Black;
+        ConsoleColor? foregroundColor = null;
+        ConsoleColor? backgroundColor = isSelected ? ConsoleColor.DarkGray : null;
         RenderLine(view, lineIndex, line, foregroundColor, backgroundColor);
     }
 
-    protected static void RenderLine(View view, int lineIndex, string line, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+    protected static void RenderLine(View view, int lineIndex, string line, ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
     {
         var textStart = Math.Min(view.LeftChar, line.Length);
         var textLength = Math.Max(Math.Min(view.Width, line.Length - view.LeftChar), 0);
@@ -24,8 +24,8 @@ internal class ViewLineRenderer
         Vt100.SetCursorPosition(view.Left, visualLine);
         Vt100.SetForegroundColor(foregroundColor);
         Vt100.SetBackgroundColor(backgroundColor);
-        Vt100.EraseRestOfCurrentLine();
         Console.Write(text);
+        Vt100.EraseRestOfCurrentLine();
 
         if (view.SearchResults is not null)
         {

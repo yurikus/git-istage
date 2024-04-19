@@ -6,8 +6,8 @@ internal sealed class Label
     private readonly int _left;
     private readonly int _width;
 
-    private ConsoleColor _foreground = ConsoleColor.Gray;
-    private ConsoleColor _background = ConsoleColor.Black;
+    private ConsoleColor? _foreground = null;
+    private ConsoleColor? _background = null;
     private string _text = string.Empty;
 
     public Label(int top, int left, int right)
@@ -17,7 +17,7 @@ internal sealed class Label
         _width = right - left;
     }
 
-    public ConsoleColor Foreground
+    public ConsoleColor? Foreground
     {
         get => _foreground;
         set
@@ -27,7 +27,7 @@ internal sealed class Label
         }
     }
 
-    public ConsoleColor Background
+    public ConsoleColor? Background
     {
         get => _background;
         set
@@ -55,7 +55,7 @@ internal sealed class Label
         Vt100.SetCursorPosition(_left, _top);
         Vt100.SetForegroundColor(_foreground);
         Vt100.SetBackgroundColor(_background);
-        Vt100.EraseRestOfCurrentLine();
         Console.Write(text);
+        Vt100.EraseRestOfCurrentLine();
     }
 }
